@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Shouldly;
 using Xunit;
 
@@ -19,11 +20,25 @@ namespace With.Tests
             result.Name.ShouldBe("new name");
         }
 
-        private class Mutable
+
+        [Fact]
+        public void BenchmarkNativeMutable()
         {
-            public Guid Id { get; set; }
-            public string Name { get; set; }
-            public DateTime Date { get; set; }
+            var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
+            foreach (var _ in Enumerable.Range(0, Settings.IterationCount))
+            {
+                new Mutable { Id = mutable.Id, Name = "new name", Date = mutable.Date };
+            }
+        }
+
+        [Fact]
+        public void BenchmarkWithMutable()
+        {
+            var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
+            foreach (var _ in Enumerable.Range(0, Settings.IterationCount))
+            {
+                mutable.With(x => x.Name, "new name");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Shouldly;
 using Xunit;
 
@@ -19,17 +20,24 @@ namespace With.Tests
             result.Name.ShouldBe("new name");
         }
 
-        private class Immutable
+        [Fact]
+        public void BenchmarkNativeImmutable()
         {
-            public Immutable(Guid id, string name, DateTime date)
+            var immutable = new Immutable(Guid.NewGuid(), "name", DateTime.Now);
+            foreach (var _ in Enumerable.Range(0, Settings.IterationCount))
             {
-                Id = id;
-                Name = name;
-                Date = date;
+                new Immutable(immutable.Id, "new name", immutable.Date);
             }
-            public Guid Id { get; }
-            public string Name { get; }
-            public DateTime Date { get; }
+        }
+
+        [Fact]
+        public void BenchmarkWithImmutable()
+        {
+            var immutable = new Immutable(Guid.NewGuid(), "name", DateTime.Now);
+            foreach (var _ in Enumerable.Range(0, Settings.IterationCount))
+            {
+                immutable.With(x => x.Name, "new name");
+            }
         }
     }
 }
