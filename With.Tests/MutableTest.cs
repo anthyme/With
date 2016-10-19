@@ -11,7 +11,7 @@ namespace With.Tests
         {
             var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
 
-            var result = mutable.WithM(x => x.Name, "new name");
+            var result = mutable.With(x => x.Name, "new name");
 
             result.ShouldNotBe(mutable);
             result.Id.ShouldBe(mutable.Id);
