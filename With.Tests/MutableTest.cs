@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Shouldly;
+using With.NoCache;
 using Xunit;
 
 namespace With.Tests
@@ -20,6 +21,18 @@ namespace With.Tests
             result.Name.ShouldBe("new name");
         }
 
+        [Fact]
+        public void WhenMutableWithNoCacheShouldCreateACopyWithANewValue()
+        {
+            var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
+
+            var result = mutable.WithNoCache(x => x.Name, "new name");
+
+            result.ShouldNotBe(mutable);
+            result.Id.ShouldBe(mutable.Id);
+            result.Date.ShouldBe(mutable.Date);
+            result.Name.ShouldBe("new name");
+        }
 
         [Fact]
         public void BenchmarkNativeMutable()
@@ -33,6 +46,16 @@ namespace With.Tests
 
         [Fact]
         public void BenchmarkWithMutable()
+        {
+            var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
+            foreach (var _ in Enumerable.Range(0, Settings.IterationCount))
+            {
+                mutable.With(x => x.Name, "new name");
+            }
+        }
+
+        [Fact]
+        public void BenchmarkWithNoCacheMutable()
         {
             var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
             foreach (var _ in Enumerable.Range(0, Settings.IterationCount))
