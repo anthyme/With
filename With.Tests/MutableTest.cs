@@ -35,6 +35,20 @@ namespace With.Tests
         }
 
         [Fact]
+        public void WhenMutableWithNoCacheShouldCreateACopyWithMultipleValues()
+        {
+            var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
+            var newdate = mutable.Date.AddDays(1);
+
+            var result = mutable.WithNoCache((x => x.Name, "new name"), (x => x.Date, newdate));
+
+            result.ShouldNotBe(mutable);
+            result.Id.ShouldBe(mutable.Id);
+            result.Date.ShouldBe(newdate);
+            result.Name.ShouldBe("new name");
+        }
+
+        [Fact]
         public void BenchmarkNativeMutable()
         {
             var mutable = new Mutable { Id = Guid.NewGuid(), Name = "name", Date = DateTime.Now };
